@@ -163,7 +163,5 @@ cython_debug/
 *.swp
 
 # custom
-*.pdf
-*.png
 reference_spectra_cache.json
 examples/references/
