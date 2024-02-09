@@ -49,13 +49,13 @@ A results summary is also printed to a JSON file (e.g. `examples/out/ensemble_su
 
 A visualization of the explored match sequences is saved as a network plothe explored match sequences is saved as a network plot.
 
-![](examples/out/ensemble_paths.png)
+![ensemble_paths](/examples/out/ensemble_paths.png)
 
 Finally, an overlay of aligned matches phases and the input pattern is also saved as a series of images for each step in the sequence (e.g. `examples/out/identified_phases/*.png`). Each step is an overlay of the input pattern at that step ("input"), the best maching phase ("phase") and the matching phase after dynamic time warping alignment to the input pattern.
 
-![](examples/out/identified_phases/step_0.png)
-![](examples/out/identified_phases/step_1.png)
-![](examples/out/identified_phases/step_2.png)
+![step_0](/examples/out/identified_phases/step_0.png)
+![step_1](/examples/out/identified_phases/step_1.png)
+![step_2](/examples/out/identified_phases/step_2.png)
 
 ## Input spectrum files
 
