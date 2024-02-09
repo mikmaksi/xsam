@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Union
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -227,7 +228,13 @@ class MatchSequence(Model):
             for i, match in enumerate(self.matches)
         ]
         if path is not None:
-            pn.save_as_pdf_pages(plot_list, path, verbose=False)
+            if Path(path).suffix == ".pdf":
+                pn.save_as_pdf_pages(plot_list, path, verbose=False)
+            else:
+                out = Path(path).parent.joinpath(Path(path).stem)
+                out.mkdir(exist_ok=True)
+                for i, p in enumerate(plot_list):
+                    p.save(out.joinpath(f"step_{i}.png"), verbose=False)
         else:
             return plot_list
 
@@ -342,7 +349,7 @@ class MatchEnsemble(Model):
 
         # save
         if path is not None:
-            fig.savefig(path, format="pdf")
+            fig.savefig(path)
         else:
             return fig
 
