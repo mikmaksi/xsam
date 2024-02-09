@@ -66,9 +66,9 @@ def search(spectrum_path: str, reference_dir: str, settings_path: str, cache: bo
 
     if match_ensemble.match_found:
         # visualize the top match sequence
-        match_ensemble.top_match_sequence.plot(out.joinpath("identified_phases.pdf"))
+        match_ensemble.top_match_sequence.plot(out.joinpath("identified_phases.png"))
 
         # visualize the the explored paths through the network
-        match_ensemble.plot_explored_paths(out.joinpath("ensemble_paths.pdf"))
+        match_ensemble.plot_explored_paths(out.joinpath("ensemble_paths.png"))
     else:
         logger.info("No matches found")
