@@ -1,0 +1,67 @@
+---
+title: "Example visualization for match ensemble edges"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  html_document:
+    df_print: paged
+    code_folding: hide
+    toc: true
+    toc_float: true
+    number_sections: true
+jupyter:
+  jupytext:
+    formats: ipynb,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.13.8
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+<!-- Set with output width -->
+<style type="text/css">
+.main-container {
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+h1 {font-size: 2em}
+h2 {font-size: 1.5em}
+h3 {font-size: 1.17em}
+h4 {font-size: 1.12em}
+h5 {font-size: 0.83em}
+h6 {font-size: 0.75em}
+</style>
+
+```{r setup, include=FALSE}
+# options
+knitr::opts_chunk$set(echo = TRUE)
+options(stringsAsFactors = FALSE)
+
+# libraries
+library(tidyverse)
+library(cowplot)
+library(fs)
+library(ggrepel)
+library(tidygraph)
+library(ggraph)
+```
+
+```{r echo=FALSE, fig.width = 6, fig.height = 4, fig.align = 'center', cache = FALSE, cache.extra = Sys.Date(), eval = TRUE}
+    edges = read_csv(path("test_files", "match_ensemble_edges.csv"), col_types=cols())
+    edges = edges %>%
+        unite("from", c("from_name", "from_id"), sep="-") %>%
+        unite("to", c("to_name", "to_id"), sep="-")
+    graph = as_tbl_graph(edges)
+```
+
+```{r echo=FALSE, fig.width = 6, fig.height = 4, fig.align = 'center', cache = FALSE, cache.extra = Sys.Date(), eval = TRUE}
+    p = ggraph(graph, layout="tree") +
+        geom_edge_diagonal(arrow=arrow(length=unit(4, "mm")), end_cap=circle(3, "mm")) +
+        geom_node_label(aes(label=name))
+    p %>% ggsave(file="temp.pdf", w=16, h=6)
+```
