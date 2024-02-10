@@ -8,7 +8,7 @@ from scipy.stats import wasserstein_distance
 from xsam import logger
 from xsam.constants import TERMINATION_CONDITION
 from xsam.match import Match, MatchEnsemble, MatchingResult, MatchSequence
-from xsam.operations import SpectrumSubtraction
+from xsam.operations import SpectrumAlignment, SpectrumSubtraction
 from xsam.settings import SearchMatchSettings
 from xsam.spectrum import Spectrum, SpectrumCollection
 
@@ -92,9 +92,15 @@ class PhaseIdentifier:
             )
             match_sequence.matches.append(match)
 
+            # align pattern
+            spectrum_alignment = SpectrumAlignment(target=input_spectrum, query=match.phase_spectrum)
+            aligned_spectrum = spectrum_alignment.apply(downsampling_resolution=0.1)
+
             # subtract the matched phase from the input spectrum
-            spectrum_subtraction = SpectrumSubtraction([input_spectrum, match.phase_spectrum])
-            remain_spectrum, aligned_spectrum = spectrum_subtraction.apply(downsampling_resolution=0.1)
+            spectrum_subtraction = SpectrumSubtraction(target=input_spectrum, query=aligned_spectrum)
+            remain_spectrum = spectrum_subtraction.apply(censor_negative=True)
+
+            # add to the match
             match.aligned_spectrum = aligned_spectrum
             match.remain_spectrum = remain_spectrum
 

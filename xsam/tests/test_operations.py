@@ -3,12 +3,12 @@ import unittest
 from dataclasses import dataclass
 from pathlib import Path
 
+import pytest
 import xsam.tests.constants as constants
 from xsam.match import Match
-from xsam.operations import SpectrumSubtraction
+from xsam.operations import SpectrumAlignment, SpectrumSubtraction
 from xsam.settings import SpectrumSettings
 from xsam.spectrum import Spectrum
-import pytest
 
 
 @pytest.mark.usefixtures("plots_flag")  # see conftest.py
@@ -21,12 +21,12 @@ class TestOperations(unittest.TestCase):
         if not self.plots_flag:
             shutil.rmtree(self.plot_dir, ignore_errors=True)
 
-    def test_apply(self):
+    def test_alignment(self):
         # arrange
         @dataclass
         class TestCase:
             name: str
-            spectrum_subtraction: SpectrumSubtraction
+            spectrum_alignment: SpectrumAlignment
             last_normalization: float
             downsampling_resolution: float
             allow_shifts: float
@@ -38,8 +38,8 @@ class TestOperations(unittest.TestCase):
         phase_spectrum = Spectrum.from_cif(constants.TEST_FILE_DIR.joinpath("Li2MnO3_12.cif"), spectrum_settings)
         test_cases = [
             TestCase(
-                name="simple_subtraction",
-                spectrum_subtraction=SpectrumSubtraction(spectra=[input_spectrum, phase_spectrum]),
+                name="simple_alignment",
+                spectrum_alignment=SpectrumAlignment(target=input_spectrum, query=phase_spectrum),
                 last_normalization=1.0,
                 downsampling_resolution=1.0,
                 allow_shifts=0.75,
@@ -49,14 +49,14 @@ class TestOperations(unittest.TestCase):
 
         for case in test_cases:
             # act
-            remain_spectrum, aligned_spectrum = case.spectrum_subtraction.apply(
+            aligned_spectrum = case.spectrum_alignment.apply(
                 downsampling_resolution=case.downsampling_resolution,
                 allow_shifts=case.allow_shifts,
                 query_threshold=case.query_threshold,
             )
 
             # assert
-            self.assertLess(remain_spectrum.y.sum(), input_spectrum.y.sum())
+            self.assertLess(aligned_spectrum.y.sum(), input_spectrum.y.sum())
 
             # plot check
             match = Match(
@@ -64,7 +64,6 @@ class TestOperations(unittest.TestCase):
                 kernel=1.0,
                 input_spectrum=input_spectrum,
                 phase_spectrum=phase_spectrum,
-                remain_spectrum=remain_spectrum,
                 aligned_spectrum=aligned_spectrum,
             )
             match.plot_diagnostic(path=self.plot_dir.joinpath(f"{case.name}.pdf"))
