@@ -1,5 +1,4 @@
 from abc import ABC
-from copy import deepcopy
 
 import numpy as np
 import pandas as pd
@@ -43,8 +42,8 @@ class SpectrumAlignment(SpectrumOperation):
         """
 
         # copy objects
-        target = deepcopy(self.target)
-        query = deepcopy(self.query)
+        target = self.target.model_copy(deep=True)
+        query = self.query.model_copy(deep=True)
 
         # prepare for dynamic time-warping
         spectrum_settings = target.spectrum_settings
@@ -61,8 +60,7 @@ class SpectrumAlignment(SpectrumOperation):
             target.y, query.y, method="sakoechiba", options={"window_size": window_size}, return_path=True
         )
         index_pairs = path.transpose()
-        aligned_spectrum = deepcopy(query)
-        aligned_spectrum.y = np.zeros_like(query.y)
+        aligned_spectrum = query.model_copy(update={"y": np.zeros_like(query.y)}, deep=True)
 
         # put the path indexes into a DataFrame
         aligned_df = pd.DataFrame(index_pairs).rename(columns={0: "target_idx", 1: "query_idx"})
@@ -88,8 +86,7 @@ class SpectrumAlignment(SpectrumOperation):
 
 class SpectrumSubtraction(SpectrumOperation):
     def apply(self, censor_negative: bool = True) -> Spectrum:
-        # TODO: avoid using deepcopy here
-        remain_spectrum = deepcopy(self.target)
+        remain_spectrum = self.target.model_copy(deep=True)
         remain_spectrum.y = remain_spectrum.y - self.query.y
         if censor_negative:
             remain_spectrum.y[remain_spectrum.y < 0] = 0

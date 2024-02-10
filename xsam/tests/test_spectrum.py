@@ -1,6 +1,5 @@
 import shutil
 import unittest
-from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -177,7 +176,7 @@ class TestSpectrum(unittest.TestCase):
         # assert
         for case in test_cases:
             original_spectrum = Spectrum.from_xy(case.path, case.spectrum_settings)
-            spectrum = deepcopy(original_spectrum)
+            spectrum = original_spectrum.model_copy(deep=True)
             spectrum.resample(case.down_n_points)
             self.assertEqual(len(spectrum.x), len(spectrum.y))
             self.assertEqual(len(spectrum.x), case.down_n_points)
@@ -215,7 +214,7 @@ class TestSpectrum(unittest.TestCase):
         # assert
         for case in test_cases:
             original_spectrum = Spectrum.from_xy(case.path, case.spectrum_settings)
-            spectrum = deepcopy(original_spectrum)
+            spectrum = original_spectrum.model_copy(deep=True)
             spectrum.smooth(case.smoothing_a, case.smoothing_n)
             self.assertLess(spectrum.y.std(), original_spectrum.y.std())
 
@@ -258,7 +257,7 @@ class TestSpectrum(unittest.TestCase):
 
         # assert
         for case in test_cases:
-            spectrum = deepcopy(case.spectrum)
+            spectrum = case.spectrum.model_copy(deep=True)
             spectrum.normalize(max_intensity=case.max_intensity, min_intensity=case.min_intensity)
             self.assertEqual(spectrum.y.max(), case.max_intensity)
             if case.min_intensity is None:
@@ -299,14 +298,14 @@ class TestSpectrum(unittest.TestCase):
 
         # assert
         for case in test_cases:
-            spectrum_w_background = deepcopy(case.spectrum)
+            spectrum_w_background = case.spectrum.model_copy(deep=True)
 
             # add background
             background = case.background_constant / spectrum_w_background.x  # 1/X
             spectrum_w_background.y += background
 
             # subtract backgroun
-            spectrum_wo_background = deepcopy(spectrum_w_background)
+            spectrum_wo_background = spectrum_w_background.model_copy(deep=True)
             spectrum_wo_background.normalize(
                 max_intensity=case.max_intensity, min_intensity=spectrum_wo_background.y.min()
             )

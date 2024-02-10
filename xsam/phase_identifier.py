@@ -1,4 +1,3 @@
-from copy import deepcopy
 from typing import Optional
 
 import numpy as np
@@ -79,7 +78,7 @@ class PhaseIdentifier:
                 continue
 
             # scale the phase spectrum to max of the input spectrum
-            phase_spectrum = deepcopy(self.reference_collection.get_spectrum_by_name(phase))
+            phase_spectrum = self.reference_collection.get_spectrum_by_name(phase).model_copy(deep=True)
             phase_spectrum.normalize(max_intensity=input_spectrum.y.max())
 
             # add the matched phase to the sequence
