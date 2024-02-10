@@ -6,7 +6,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import wasserstein_distance
 
 from xsam import logger
-from xsam.constants import TERMINATION_CONDITION
+from xsam.constants import SIGNAL_TYPE, TERMINATION_CONDITION
 from xsam.match import Match, MatchEnsemble, MatchingResult, MatchSequence
 from xsam.operations import SpectrumSubtraction
 from xsam.settings import SearchMatchSettings
@@ -53,7 +53,7 @@ class PhaseIdentifier:
         if is_first:
             # start a new match sequence and add it to the ensemble
             match_ensemble = MatchEnsemble()
-            match_sequence = MatchSequence()
+            match_sequence = MatchSequence(input_signal=getattr(input_spectrum, self.search_match_settings.signal_type))
             match_ensemble.match_sequences.append(match_sequence)
 
         # remove existing matches, so we don't match the same phase twice
@@ -99,16 +99,19 @@ class PhaseIdentifier:
             match.remain_spectrum = remain_spectrum
 
             # return if the maximum number of phases has been identified
+            # TODO: remove "is_done" in favor of just using .is_complete
             is_done = False
             if len(match_sequence.matches) >= self.search_match_settings.max_phases:
                 match_sequence.is_complete = True
                 match_sequence.termination_condition = TERMINATION_CONDITION.MAX_PHASES
                 is_done = True
 
-            # return if the residual drops below a cutoff intensity
-            if max(remain_spectrum.y) < self.search_match_settings.cutoff_intensity:
+            # return if the residual drops below a cutoff signal
+            remain_signal = getattr(remain_spectrum, self.search_match_settings.signal_type)
+            signal_ratio = remain_signal / match_sequence.input_signal
+            if signal_ratio < self.search_match_settings.signal_cutoff:
                 match_sequence.is_complete = True
-                match_sequence.termination_condition = TERMINATION_CONDITION.INTENSITY_CUTOFF
+                match_sequence.termination_condition = TERMINATION_CONDITION.SIGNAL_CUTOFF
                 is_done = True
 
             # user info
@@ -119,7 +122,7 @@ class PhaseIdentifier:
                     is_complete=match_sequence.is_complete,
                     termination_condition=match_sequence.termination_condition,
                     average_kernel=f"{match_sequence.average_kernel:0.3f}",
-                    remain_intensity=f"{max(remain_spectrum.y):0.3f}",
+                    signal_ratio=f"{signal_ratio:0.3f}",
                 )
             if is_done:
                 continue
@@ -141,9 +144,11 @@ class PhaseIdentifier:
         # append the current spectrum to the reference array
         intensity_array = np.vstack([spectrum.y, self.reference_collection.reference_array])
         if self.search_match_settings.similarity_function == "earth-mover-distance":
-            kernel_matrix = 1-squareform(pdist(intensity_array, lambda u, v: wasserstein_distance(u, v).sum()))
+            kernel_matrix = 1 - squareform(pdist(intensity_array, lambda u, v: wasserstein_distance(u, v).sum()))
         else:
-            kernel_matrix = 1-squareform(pdist(intensity_array, metric=self.search_match_settings.similarity_function))
+            kernel_matrix = 1 - squareform(
+                pdist(intensity_array, metric=self.search_match_settings.similarity_function)
+            )
 
         # create a matching result
         matching_result = MatchingResult(phases=self.reference_collection.phases, kernels=kernel_matrix[1:, 0])

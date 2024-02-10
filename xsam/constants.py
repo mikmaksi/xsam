@@ -19,5 +19,13 @@ class WAVELENGTH_TYPE(str, Enum):
 
 class TERMINATION_CONDITION(str, Enum):
     MAX_PHASES = "max_phases"
-    INTENSITY_CUTOFF = "intensity_cutoff_reached"
+    SIGNAL_CUTOFF = "intensity_cutoff_reached"
     NO_MATCHES = "no_matches"
+
+
+class SIGNAL_TYPE(str, Enum):
+    MAX_INTENSITY = "max_intensity"
+    AUC = "auc"
+
+
+SIGNAL_TYPE_ATTRIBUTE_LOOKUP = {SIGNAL_TYPE.MAX_INTENSITY: "max_intensity", SIGNAL_TYPE.AUC: "auc"}

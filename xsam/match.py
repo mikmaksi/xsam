@@ -195,6 +195,7 @@ class MatchSequence(Model):
     matches: list[Match] = []
     termination_condition: Optional[TERMINATION_CONDITION] = None
     is_complete: bool = False
+    input_signal: Optional[float] = None
 
     @property
     def phases(self) -> list[str]:
@@ -220,6 +221,7 @@ class MatchSequence(Model):
             matches=match_sequence.matches[:last_step],
             termination_condition=match_sequence.termination_condition,
             is_complete=match_sequence.is_complete,
+            input_signal=match_sequence.input_signal,
         )
 
     def plot(self, path: Optional[str] = None) -> Union[list[pn.ggplot], None]:

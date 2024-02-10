@@ -4,7 +4,6 @@ import click
 from monty.serialization import dumpfn, loadfn
 
 from xsam import logger
-from xsam.constants import TERMINATION_CONDITION
 from xsam.match import MatchEnsembleSummary
 from xsam.phase_identifier import PhaseIdentifier
 from xsam.settings import SearchMatchSettings

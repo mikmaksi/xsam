@@ -1,6 +1,7 @@
 {
     "max_phases": 2,
-    "cutoff_intensity": 0.1,
+    "signal_cutoff": 0.1,
+    "signal_type": "max_intensity",
     "min_kernel": 0.5,
     "spectrum_settings": {
         "min_angle": 10.0,

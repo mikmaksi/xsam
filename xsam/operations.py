@@ -32,6 +32,7 @@ class SpectrumSubtraction(SpectrumOperation):
     def subtract_patterns(
         first_spectrum: Spectrum, second_spectrum: Spectrum, censor_negative: bool = True
     ) -> Spectrum:
+        # TODO: avoid using deepcopy here
         remain_spectrum = deepcopy(first_spectrum)
         remain_spectrum.y = remain_spectrum.y - second_spectrum.y
         if censor_negative:

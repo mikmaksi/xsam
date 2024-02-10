@@ -1,6 +1,6 @@
 from monty.serialization import dumpfn, loadfn
 
-from xsam.constants import WAVELENGTH_TYPE, SIMILARITY_FUNCTION
+from xsam.constants import WAVELENGTH_TYPE, SIMILARITY_FUNCTION, SIGNAL_TYPE
 from xsam.pydantic_config import Model
 
 
@@ -22,7 +22,8 @@ class SearchMatchSettings(Model):
     """
 
     max_phases: int = 3
-    cutoff_intensity: float = 0.05
+    signal_cutoff: float = 0.05
+    signal_type: SIGNAL_TYPE = SIGNAL_TYPE.MAX_INTENSITY
     min_kernel: float = 0.30
     spectrum_settings: SpectrumSettings
     similarity_function: SIMILARITY_FUNCTION = SIMILARITY_FUNCTION.COSINE

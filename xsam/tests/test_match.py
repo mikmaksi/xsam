@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 import xsam.tests.constants as constants
-from pydantic import Field
 from xsam.constants import TERMINATION_CONDITION
 from xsam.match import Match, MatchEnsemble, MatchingResult, MatchSequence
 from xsam.settings import SpectrumSettings

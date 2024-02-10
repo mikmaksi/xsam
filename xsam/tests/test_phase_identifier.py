@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 import xsam.tests.constants as constants
 from pandas.testing import assert_frame_equal
-from xsam.constants import SIMILARITY_FUNCTION, TERMINATION_CONDITION
+from xsam.constants import SIGNAL_TYPE, SIMILARITY_FUNCTION, TERMINATION_CONDITION
 from xsam.match import Match, MatchSequence
 from xsam.phase_identifier import PhaseIdentifier
 from xsam.settings import SearchMatchSettings, SpectrumSettings
@@ -33,7 +33,8 @@ class TestPhaseIdentifier(unittest.TestCase):
             reference_dir: str
             spectrum_settings: SpectrumSettings
             max_phases: int
-            cutoff_intensity: float
+            signal_cutoff: float
+            signal_type: SIGNAL_TYPE
             min_kernel: float
             similarity_function: SIMILARITY_FUNCTION
             expected_ensemble_edges_path: str
@@ -66,10 +67,10 @@ class TestPhaseIdentifier(unittest.TestCase):
                 reference_dir=constants.TEST_FILE_DIR,
                 spectrum_settings=spectrum_settings,
                 max_phases=3,
-                cutoff_intensity=0.05,
+                signal_cutoff=0.05,
+                signal_type=SIGNAL_TYPE.MAX_INTENSITY,
                 min_kernel=0.1,
                 similarity_function=SIMILARITY_FUNCTION.COSINE,
-
                 # outputs
                 expected_ensemble_edges_path=constants.TEST_FILE_DIR.joinpath("match_ensemble_edges.csv"),
                 expected_ensemble_paths_path=constants.TEST_FILE_DIR.joinpath("match_ensemble_paths.csv"),
@@ -96,6 +97,7 @@ class TestPhaseIdentifier(unittest.TestCase):
                     ],
                     termination_condition=TERMINATION_CONDITION.MAX_PHASES,
                     is_complete=True,
+                    input_signal=1.0,
                 ),
             ),
         ]
@@ -103,11 +105,11 @@ class TestPhaseIdentifier(unittest.TestCase):
             # act
             search_match_settings = SearchMatchSettings(
                 max_phases=case.max_phases,
-                cutoff_intensity=case.cutoff_intensity,
+                signal_cutoff=case.signal_cutoff,
+                signal_type=case.signal_type,
                 min_kernel=case.min_kernel,
                 spectrum_settings=spectrum_settings,
                 similarity_function=case.similarity_function,
-
             )
             spectrum_collection = SpectrumCollection.from_reference_dir(case.reference_dir, case.spectrum_settings)
             spectrum = Spectrum.from_xy(path=case.spectrum_path, spectrum_settings=case.spectrum_settings)

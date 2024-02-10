@@ -13,14 +13,13 @@ from scipy.interpolate import CubicSpline
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import filtfilt, resample
 from skimage import restoration
+from tqdm import tqdm
 
+from xsam import logger
 from xsam.constants import ANGSTROM_TO_NM
 from xsam.exceptions import XsamException
 from xsam.pydantic_config import Model
 from xsam.settings import SpectrumSettings
-from xsam import logger
-
-from tqdm import tqdm
 
 
 class LinePattern(Model):
@@ -117,10 +116,12 @@ class Spectrum(Model):
         self.y = smoothed_y
 
     def normalize(self, max_intensity: float = 1.0, min_intensity: Optional[float] = None) -> float:
+        """normalize the pattern based on the minimum and maximum intensity and recalcualte the area under the curve."""
         if min_intensity is not None:
             self.y = self.y - min_intensity
-        normalization_constant = max_intensity / self.y.max()
+        normalization_constant = max_intensity / self.max_intensity
         self.y = self.y * normalization_constant
+
         return normalization_constant
 
     def background_subtract(self, rolling_ball_radius: float = 800.0) -> None:
@@ -129,6 +130,14 @@ class Spectrum(Model):
         """
         background = restoration.rolling_ball(self.y, radius=rolling_ball_radius)
         self.y = self.y - background
+
+    @property
+    def auc(self) -> float:
+        return np.trapz(y=self.y, x=self.x)
+
+    @property
+    def max_intensity(self) -> float:
+        return self.y.max()
 
     @staticmethod
     def calc_peak_width(two_theta, domain_size: float, wavelength_nm: float, K: float = 0.9):

@@ -79,7 +79,8 @@ search_and_match_settings.to_json("settings.json")
 Defaults have been built into `SearchMatchSettings`, but can be modified to suit ones use-case.
 
 1. `max_phases`: maximum number of phases that can be searched for iteratively in a single input pattern.
-2. `cutoff_intensity`: terminate searching for additional phases when the maximum intensity of the input pattern falls below this value (scaled 0 to 1).
+2. `signal_cutoff`: terminate searching for additional phases when the proportion of signal falls below this value [0, 1].
+3. `signal_type`: signal type to use to determine early termination of search (see. `constants.SIGNAL_TYPE`). Currently `max_intensity` and `auc` are supported.
 3. `min_kernel`: minimum similarity score for a phase to be considered a match to the input pattern at a given step.
 4. `spectrum_settings`: setting defining how patterns should be read from `.xy` files and generate from `.cif` structure files.
 5. `similarity_function`: similarity metric to use to compare input pattern and potential matches (refer to `constants.SIMILARITY_FUNCTION` Enum).
