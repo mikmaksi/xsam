@@ -6,7 +6,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import wasserstein_distance
 
 from xsam import logger
-from xsam.constants import SIGNAL_TYPE, TERMINATION_CONDITION
+from xsam.constants import TERMINATION_CONDITION
 from xsam.match import Match, MatchEnsemble, MatchingResult, MatchSequence
 from xsam.operations import SpectrumSubtraction
 from xsam.settings import SearchMatchSettings
@@ -99,12 +99,9 @@ class PhaseIdentifier:
             match.remain_spectrum = remain_spectrum
 
             # return if the maximum number of phases has been identified
-            # TODO: remove "is_done" in favor of just using .is_complete
-            is_done = False
             if len(match_sequence.matches) >= self.search_match_settings.max_phases:
                 match_sequence.is_complete = True
                 match_sequence.termination_condition = TERMINATION_CONDITION.MAX_PHASES
-                is_done = True
 
             # return if the residual drops below a cutoff signal
             remain_signal = getattr(remain_spectrum, self.search_match_settings.signal_type)
@@ -112,7 +109,6 @@ class PhaseIdentifier:
             if signal_ratio < self.search_match_settings.signal_cutoff:
                 match_sequence.is_complete = True
                 match_sequence.termination_condition = TERMINATION_CONDITION.SIGNAL_CUTOFF
-                is_done = True
 
             # user info
             if match_sequence.is_complete:
@@ -124,7 +120,6 @@ class PhaseIdentifier:
                     average_kernel=f"{match_sequence.average_kernel:0.3f}",
                     signal_ratio=f"{signal_ratio:0.3f}",
                 )
-            if is_done:
                 continue
 
             # explore additional matches
