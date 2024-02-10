@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import xsam.tests.constants as constants
 from xsam.match import Match
-from xsam.operations import SpectrumAlignment, SpectrumSubtraction
+from xsam.operations import SpectrumAlignment
 from xsam.settings import SpectrumSettings
 from xsam.spectrum import Spectrum
 
