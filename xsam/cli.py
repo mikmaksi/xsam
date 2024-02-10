@@ -12,8 +12,7 @@ from xsam.spectrum import Spectrum, SpectrumCollection
 
 @click.group()
 def cli():
-    """cli entry point.
-    """
+    """cli entry point."""
     pass
 
 
