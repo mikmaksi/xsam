@@ -19,7 +19,7 @@ class WAVELENGTH_TYPE(str, Enum):
 
 class TERMINATION_CONDITION(str, Enum):
     MAX_PHASES = "max_phases"
-    SIGNAL_CUTOFF = "intensity_cutoff_reached"
+    SIGNAL_CUTOFF = "singal_cutoff"
     NO_MATCHES = "no_matches"
 
 
