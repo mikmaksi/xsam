@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, Union
 from pathlib import Path
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -13,6 +13,7 @@ from xsam import logger
 from xsam.constants import TERMINATION_CONDITION
 from xsam.exceptions import XsamException
 from xsam.pydantic_config import Model
+from xsam.settings import SearchMatchSettings
 from xsam.spectrum import Spectrum
 
 
@@ -373,17 +374,26 @@ class MatchSequenceSummary(Model):
 
 
 class MatchEnsembleSummary(Model):
+    spectrum_path: str
+    reference_dir: str
     match_found: bool
     top_match: MatchSequenceSummary
     edges: pd.DataFrame
     paths: pd.DataFrame
+    search_match_settings: SearchMatchSettings
 
     @field_serializer("edges", "paths")
     def serialize_df(self, data_frame: pd.DataFrame):
         return data_frame.to_json()
 
     @classmethod
-    def from_match_ensemble(cls, match_ensemble: MatchEnsemble) -> "MatchEnsembleSummary":
+    def from_match_ensemble(
+        cls,
+        spectrum_path: str,
+        reference_dir: str,
+        search_match_settings: SearchMatchSettings,
+        match_ensemble: MatchEnsemble,
+    ) -> "MatchEnsembleSummary":
         if match_ensemble.match_found:
             top_match_sequence_summary = MatchSequenceSummary.from_match_sequence(match_ensemble.top_match_sequence)
             match_found = True
@@ -391,6 +401,9 @@ class MatchEnsembleSummary(Model):
             top_match_sequence_summary = MatchSequenceSummary(termination_condition=TERMINATION_CONDITION.NO_MATCHES)
             match_found = False
         return cls(
+            spectrum_path=spectrum_path,
+            reference_dir=reference_dir,
+            search_match_settings=search_match_settings,
             match_found=match_found,
             top_match=top_match_sequence_summary,
             edges=match_ensemble.get_edges_summary(),
