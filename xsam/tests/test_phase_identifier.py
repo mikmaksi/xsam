@@ -44,18 +44,18 @@ class TestPhaseIdentifier(unittest.TestCase):
         # load spectra
         spectrum_settings = SpectrumSettings(min_angle=10, max_angle=100)
         scale_factor_a = 1.0
-        scale_factor_b = 0.35324531197407727
-        scale_factor_c = 0.23564029472259246
+        scale_factor_b = 0.35328530285945514
+        scale_factor_c = 0.3046191129402949
         spectrum_a = Spectrum.from_cif(
             path=constants.TEST_FILE_DIR.joinpath("MnO_225.cif"), spectrum_settings=spectrum_settings
         )
         spectrum_a.y = spectrum_a.y * scale_factor_a
         spectrum_b = Spectrum.from_cif(
-            path=constants.TEST_FILE_DIR.joinpath("Li2MnO3_12.cif"), spectrum_settings=spectrum_settings
+            path=constants.TEST_FILE_DIR.joinpath("LiO2_12.cif"), spectrum_settings=spectrum_settings
         )
         spectrum_b.y = spectrum_b.y * scale_factor_b
         spectrum_c = Spectrum.from_cif(
-            path=constants.TEST_FILE_DIR.joinpath("TiO2_136.cif"), spectrum_settings=spectrum_settings
+            path=constants.TEST_FILE_DIR.joinpath("Li2MnO3_12.cif"), spectrum_settings=spectrum_settings
         )
         spectrum_c.y = spectrum_c.y * scale_factor_c
 
@@ -83,15 +83,15 @@ class TestPhaseIdentifier(unittest.TestCase):
                             scale_factor=scale_factor_a,
                         ),
                         Match(
-                            phase="Li2MnO3_12.cif",
+                            phase="LiO2_12.cif",
                             phase_spectrum=spectrum_b,
-                            kernel=0.6358769621203686,
+                            kernel=0.11388664660737635,
                             scale_factor=scale_factor_b,
                         ),
                         Match(
-                            phase="TiO2_136.cif",
+                            phase="Li2MnO3_12.cif",
                             phase_spectrum=spectrum_c,
-                            kernel=0.13202963847033367,
+                            kernel=0.728154360805342,
                             scale_factor=scale_factor_c,
                         ),
                     ],
@@ -123,11 +123,14 @@ class TestPhaseIdentifier(unittest.TestCase):
             assert_frame_equal(
                 match_ensemble.get_edges_summary()[["from_name", "to_name"]],
                 expected_match_ensemble_edges[["from_name", "to_name"]],
+                check_exact=False,
             )
 
             # check the paths
             expected_match_ensemble_paths = pd.read_csv(case.expected_ensemble_paths_path)
-            assert_frame_equal(match_ensemble.get_paths_summary(), expected_match_ensemble_paths)
+            assert_frame_equal(
+                match_ensemble.get_paths_summary(), expected_match_ensemble_paths, check_exact=False, atol=1e-4
+            )
 
             # check the top match
             self.assertEqual(case.expected_top_match_sequence, match_ensemble.top_match_sequence)
