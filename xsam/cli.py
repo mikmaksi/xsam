@@ -59,7 +59,12 @@ def search(spectrum_path: str, reference_dir: str, settings_path: str, cache: bo
         out.mkdir()
 
     # save a summary of the ensemble
-    match_ensemble_summary = MatchEnsembleSummary.from_match_ensemble(match_ensemble)
+    match_ensemble_summary = MatchEnsembleSummary.from_match_ensemble(
+        spectrum_path=spectrum_path,
+        reference_dir=reference_dir,
+        search_match_settings=search_match_settings,
+        match_ensemble=match_ensemble,
+    )
     dumpfn(match_ensemble_summary.model_dump(), out.joinpath("ensemble_summary.json"), indent=4)
 
     if match_ensemble.match_found:
