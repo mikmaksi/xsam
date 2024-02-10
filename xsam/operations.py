@@ -80,10 +80,10 @@ class SpectrumAlignment(SpectrumOperation):
         # take intensity from the target
         aligned_spectrum.y = aligned_df["target_y"].to_numpy()
 
-        # upsample the spectra back
-        query.resample(spectrum_settings.n_points)
+        # upsample the spectrum back
+        aligned_spectrum.resample(spectrum_settings.n_points)
 
-        return query
+        return aligned_spectrum
 
 
 class SpectrumSubtraction(SpectrumOperation):
