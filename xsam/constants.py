@@ -28,4 +28,9 @@ class SIGNAL_TYPE(str, Enum):
     AUC = "auc"
 
 
+class PLOT_FORMAT(str, Enum):
+    PNG = "png"
+    PDF = "pdf"
+
+
 SIGNAL_TYPE_ATTRIBUTE_LOOKUP = {SIGNAL_TYPE.MAX_INTENSITY: "max_intensity", SIGNAL_TYPE.AUC: "auc"}

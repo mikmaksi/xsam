@@ -4,6 +4,7 @@ import click
 from monty.serialization import dumpfn, loadfn
 
 from xsam import logger
+from xsam.constants import PLOT_FORMAT
 from xsam.match import MatchEnsembleSummary
 from xsam.phase_identifier import PhaseIdentifier
 from xsam.settings import SearchMatchSettings
@@ -22,7 +23,8 @@ def cli():
 @click.argument("settings_path", type=click.Path(exists=True))
 @click.option("--cache", type=bool, default=False, is_flag=True)
 @click.option("--out", type=click.Path(file_okay=False, dir_okay=True), default="out")
-def search(spectrum_path: str, reference_dir: str, settings_path: str, cache: bool, out: str):
+@click.option("--plot-format", type=click.Choice([PLOT_FORMAT.PNG, PLOT_FORMAT.PDF]), default=PLOT_FORMAT.PNG)
+def search(spectrum_path: str, reference_dir: str, settings_path: str, cache: bool, out: str, plot_format: str):
     """search for phases in a spectrum.
 
     Args:
@@ -69,9 +71,9 @@ def search(spectrum_path: str, reference_dir: str, settings_path: str, cache: bo
 
     if match_ensemble.match_found:
         # visualize the top match sequence
-        match_ensemble.top_match_sequence.plot(out.joinpath("identified_phases.png"))
+        match_ensemble.top_match_sequence.plot(out.joinpath("identified_phases"), plot_format)
 
         # visualize the the explored paths through the network
-        match_ensemble.plot_explored_paths(out.joinpath("ensemble_paths.png"))
+        match_ensemble.plot_explored_paths(out.joinpath("ensemble_paths"), plot_format)
     else:
         logger.info("No matches found")

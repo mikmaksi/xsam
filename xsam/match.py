@@ -10,7 +10,7 @@ import plotnine as pn
 from pydantic import Field, field_serializer, model_validator
 
 from xsam import logger
-from xsam.constants import TERMINATION_CONDITION
+from xsam.constants import PLOT_FORMAT, TERMINATION_CONDITION
 from xsam.exceptions import XsamException
 from xsam.pydantic_config import Model
 from xsam.settings import SearchMatchSettings
@@ -225,19 +225,27 @@ class MatchSequence(Model):
             input_signal=match_sequence.input_signal,
         )
 
-    def plot(self, path: Optional[str] = None) -> Union[list[pn.ggplot], None]:
+    def plot(
+        self, path_wo_suffix: Optional[str] = None, plot_format: PLOT_FORMAT = PLOT_FORMAT.PNG
+    ) -> Union[list[pn.ggplot], None]:
         plot_list = [
             match.plot_overlay(labels=["input", "phase", "aligned"]) + pn.labs(title=f"Step {i}: {match.phase}")
             for i, match in enumerate(self.matches)
         ]
-        if path is not None:
-            if Path(path).suffix == ".pdf":
-                pn.save_as_pdf_pages(plot_list, path, verbose=False)
-            else:
-                out = Path(path).parent.joinpath(Path(path).stem)
-                out.mkdir(exist_ok=True)
+        if path_wo_suffix is not None:
+            # check that the path does not have a suffix
+            path_wo_suffix = Path(path_wo_suffix)
+            if path_wo_suffix.suffix != "":
+                raise XsamException("Path should be w/o suffix", {"path_wo_suffix": path_wo_suffix})
+
+            # plot according to the format
+            if plot_format == PLOT_FORMAT.PDF:
+                pn.save_as_pdf_pages(plot_list, f"{path_wo_suffix}.{plot_format.value}", verbose=False)
+            elif plot_format == PLOT_FORMAT.PNG:
+                # save plots separately
+                path_wo_suffix.mkdir(exist_ok=True)
                 for i, p in enumerate(plot_list):
-                    p.save(out.joinpath(f"step_{i}.png"), verbose=False)
+                    p.save(path_wo_suffix.joinpath(f"step_{i}.{plot_format.value}"), verbose=False)
         else:
             return plot_list
 
@@ -321,7 +329,9 @@ class MatchEnsemble(Model):
         paths_summary = pd.DataFrame(data_list)
         return paths_summary
 
-    def plot_explored_paths(self, path: Optional[str] = None) -> Union[list[pn.ggplot], None]:
+    def plot_explored_paths(
+        self, path_wo_suffix: Optional[str] = None, plot_format: PLOT_FORMAT = PLOT_FORMAT.PNG
+    ) -> Union[list[pn.ggplot], None]:
         # create a DataFrame of edges
         edges = self.get_edges_summary()
 
@@ -351,8 +361,14 @@ class MatchEnsemble(Model):
             )
 
         # save
-        if path is not None:
-            fig.savefig(path)
+        if path_wo_suffix is not None:
+            # check that the path does not have a suffix
+            path_wo_suffix = Path(path_wo_suffix)
+            if path_wo_suffix.suffix != "":
+                raise XsamException("Path should be w/o suffix", {"path_wo_suffix": path_wo_suffix})
+
+            # save figure
+            fig.savefig(f"{path_wo_suffix}.{plot_format.value}")
         else:
             return fig
 
